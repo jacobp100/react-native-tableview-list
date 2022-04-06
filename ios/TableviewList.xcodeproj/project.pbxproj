@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-
-		5E555C0D2413F4C50049A1A2 /* TableviewList.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* TableviewList.m */; };
-
+		16F0C2F627FE266600287066 /* RCTTableViewList.m in Sources */ = {isa = PBXBuildFile; fileRef = 16F0C2F427FE266600287066 /* RCTTableViewList.m */; };
+		16F0C2F727FE266600287066 /* RCTTableViewListManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 16F0C2F527FE266600287066 /* RCTTableViewListManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,10 +25,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libTableviewList.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTableviewList.a; sourceTree = BUILT_PRODUCTS_DIR; };
-
-		B3E7B5881CC2AC0600A0062D /* TableviewList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableviewList.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* TableviewList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableviewList.m; sourceTree = "<group>"; };
-
+		16F0C2F227FE266600287066 /* RCTTableViewList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTTableViewList.h; sourceTree = "<group>"; };
+		16F0C2F327FE266600287066 /* RCTTableViewListManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTTableViewListManager.h; sourceTree = "<group>"; };
+		16F0C2F427FE266600287066 /* RCTTableViewList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTTableViewList.m; sourceTree = "<group>"; };
+		16F0C2F527FE266600287066 /* RCTTableViewListManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTTableViewListManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,10 +53,10 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-
-				B3E7B5881CC2AC0600A0062D /* TableviewList.h */,
-				B3E7B5891CC2AC0600A0062D /* TableviewList.m */,
-
+				16F0C2F227FE266600287066 /* RCTTableViewList.h */,
+				16F0C2F427FE266600287066 /* RCTTableViewList.m */,
+				16F0C2F327FE266600287066 /* RCTTableViewListManager.h */,
+				16F0C2F527FE266600287066 /* RCTTableViewListManager.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -119,9 +118,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-
-				B3E7B58A1CC2AC0600A0062D /* TableviewList.m in Sources */,
-
+				16F0C2F627FE266600287066 /* RCTTableViewList.m in Sources */,
+				16F0C2F727FE266600287066 /* RCTTableViewListManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,7 +232,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = TableviewList;
 				SKIP_INSTALL = YES;
-
 			};
 			name = Debug;
 		};
@@ -251,7 +248,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = TableviewList;
 				SKIP_INSTALL = YES;
-
 			};
 			name = Release;
 		};

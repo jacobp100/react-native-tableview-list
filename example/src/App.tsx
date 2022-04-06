@@ -1,25 +1,95 @@
-import * as React from 'react';
-
-import { StyleSheet, View } from 'react-native';
-import { TableviewListView } from 'react-native-tableview-list';
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <TableviewListViewManager color="#32a852" style={styles.box} />
-    </View>
-  );
-}
+import React from 'react';
+import { Alert, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import TableviewListView, {
+  MenuItem,
+  RowEvent,
+  Section,
+} from 'react-native-tableview-list';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+  cellContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+  },
+  lozenge: {
+    width: 10,
+    height: 10,
+    backgroundColor: 'red',
+    transform: [{ rotate: '45deg' }],
   },
 });
+
+const defaultSections: Section<string>[] = [
+  {
+    title: 'First Section',
+    key: 'first',
+    data: Array.from({ length: 20 }, (_, i) => `Item ${i + 1}`),
+  },
+  {
+    title: 'Second Section',
+    key: 'second',
+    data: Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`),
+  },
+  {
+    title: 'Third Section',
+    key: 'third',
+    data: Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`),
+  },
+];
+
+export default function App() {
+  const [sections, setSections] = React.useState(defaultSections);
+
+  const deleteRow = React.useCallback(({ index, section }: RowEvent<any>) => {
+    setSections((ss) => {
+      return ss.map((s) => ({
+        ...s,
+        data: s.data.filter((_, i) => s !== section || index !== i),
+      }));
+    });
+  }, []);
+
+  const menu = React.useMemo(
+    (): MenuItem<string>[] => [
+      {
+        title: 'Alert',
+        systemIcon: 'eyeglasses',
+        onPress: ({ item }) => Alert.alert(item),
+      },
+      {
+        title: 'Delete',
+        systemIcon: 'trash',
+        destructive: true,
+        onPress: deleteRow,
+      },
+    ],
+    [deleteRow]
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <TableviewListView<string>
+        sections={sections}
+        rowHeight={50}
+        cellContainerStyle={styles.cellContainer}
+        keyExtractor={React.useCallback((item) => item, [])}
+        renderItem={React.useCallback(({ item }) => {
+          return (
+            <>
+              <Text>{item}</Text>
+              <View style={styles.lozenge} />
+            </>
+          );
+        }, [])}
+        onPressRow={React.useCallback(({ item }) => Alert.alert(item), [])}
+        menu={menu}
+        onDeleteRow={deleteRow}
+      />
+    </SafeAreaView>
+  );
+}
