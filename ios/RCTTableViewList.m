@@ -60,7 +60,7 @@
 @implementation RCTTableViewList {
   BOOL _ready;
   NSMutableDictionary<NSString *, UIView *> *_cells;
-  UIView *_listEmptyView;
+  NSMutableArray<NSString *> *_pendingCellUpdates;
 }
 
 - (instancetype)init
@@ -70,6 +70,7 @@
     self.delegate = self;
     self.dataSource = self;
     _cells = [NSMutableDictionary new];
+    _pendingCellUpdates = [NSMutableArray new];
     [self registerClass:UITableViewCell.class forCellReuseIdentifier:@"cell"];
 
     // React Native defaults
@@ -103,6 +104,7 @@
 {
   [super insertReactSubview:subview atIndex:index];
   [_cells setObject:subview forKey:subview.nativeID];
+  [_pendingCellUpdates addObject:subview.nativeID];
 }
 
 - (void)removeReactSubview:(UIView *)subview
@@ -125,22 +127,25 @@
     self.backgroundView = nil;
   }
 
-  NSMutableArray<NSIndexPath *> *updated = [NSMutableArray new];
+  if (!_ready) {
+    return;
+  }
 
-  for (UIView *subview in reactSubviews) {
-    if (subview.superview == nil) {
-      NSIndexPath *indexPath = _sectionData.indexPathForKey[subview.nativeID];
-
-      if (indexPath != nil) {
-        [updated addObject:indexPath];
-      }
+  for (NSString *key in _pendingCellUpdates) {
+    NSIndexPath *indexPath = _sectionData.indexPathForKey[key];
+    if (indexPath == nil) {
+      continue;
     }
+
+    UITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+    if (cell == nil) {
+      continue;
+    }
+
+    [self configureCell:cell withKey:key];
   }
 
-  if (_ready && updated.count > 0) {
-    [self reloadRowsAtIndexPaths:updated
-                withRowAnimation:UITableViewRowAnimationNone];
-  }
+  [_pendingCellUpdates removeAllObjects];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -275,20 +280,27 @@ API_AVAILABLE(ios(13.0)) {
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView
                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
-  UITableViewCell *container = [self dequeueReusableCellWithIdentifier:@"cell"];
+  UITableViewCell *cell = [self dequeueReusableCellWithIdentifier:@"cell"];
+  NSString *key = _sectionData.sections[indexPath.section].rows[indexPath.row].key;
+
+  [self configureCell:cell withKey:key];
+
+  return cell;
+}
+
+- (void)configureCell:(UITableViewCell *)container
+              withKey:(NSString *)key
+{
   container.backgroundColor = [UIColor clearColor];
 
   for (UIView *subview in container.contentView.subviews) {
     [subview removeFromSuperview];
   }
 
-  NSString *key = _sectionData.sections[indexPath.section].rows[indexPath.row].key;
   UIView *content = _cells[key];
-  if (content) {
+  if (content != nil) {
     [container.contentView addSubview:content];
   }
-
-  return container;
 }
 
 #if TARGET_OS_MACCATALYST
