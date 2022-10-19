@@ -2,6 +2,8 @@
 
 [SectionList](https://reactnative.dev/docs/sectionlist)-like component backed by a [UITableView](https://developer.apple.com/documentation/uikit/uitableview) (iOS only).
 
+Exported from [TechniCalc](https://jacobdoescode.com/technicalc).
+
 The aim is to have the fully native experience: swipe to delete (with correct haptics and automatic dismissal when scrolling), press and hold menus etc. Performance is probably on par with the default `SectionList` component.
 
 Only renders custom cells - if you need the standard styles, use [react-native-tableview](https://github.com/aksonov/react-native-tableview). This library will also handle custom cells - but doing so breaks stuff like `Context`.
