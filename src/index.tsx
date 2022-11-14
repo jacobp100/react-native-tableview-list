@@ -49,6 +49,8 @@ const removeMenuItemCallbacks = <Row,>(
   systemIcon: menu.systemIcon,
   destructive: menu.destructive,
   disabled: menu.disabled,
+  inline: menu.inline,
+  children: menu.children?.map(removeMenuItemCallbacks),
 });
 
 type SectionData<Row> = {
@@ -70,7 +72,7 @@ type RowBasicEventData = {
 };
 
 type MenuEventData = RowBasicEventData & {
-  index: number;
+  indexPath: number[];
   key: string | undefined;
 };
 
@@ -186,11 +188,16 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
 
   const onMenu = React.useCallback(
     (e: NativeSyntheticEvent<MenuEventData>) => {
-      const { sectionIndex, rowIndex, index } = e.nativeEvent;
+      const { sectionIndex, rowIndex, indexPath } = e.nativeEvent;
       const section = sections[sectionIndex];
       const menuObject = section.menu ?? baseMenu;
       const item = section.data[rowIndex];
-      menuObject?.[index].onPress({ item, index: rowIndex, section });
+      type Accum = Pick<MenuItem<Row>, 'children' | 'onPress'> | undefined;
+      const menuChild = indexPath.reduce<Accum>(
+        (accum, index) => accum?.children?.[index],
+        { children: menuObject }
+      );
+      menuChild?.onPress?.({ item, index: rowIndex, section });
     },
     [baseMenu, sections]
   );

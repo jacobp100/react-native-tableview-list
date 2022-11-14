@@ -243,38 +243,72 @@ API_AVAILABLE(ios(13.0)) {
      configurationWithIdentifier:nil
      previewProvider:nil
      actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
-      NSMutableArray<UIMenuElement *> *actions = [[NSMutableArray alloc] initWithCapacity:menu.count];
+      NSMutableArray<UIMenuElement *> *children = [[NSMutableArray alloc] initWithCapacity:menu.count];
 
       for (NSInteger index = 0; index < menu.count; index += 1) {
-        NSDictionary *menuItem = menu[index];
-        NSString *title = [RCTConvert NSString:menuItem[@"title"]];
-        NSString *key = [RCTConvert NSString:menuItem[@"key"]];
-        NSString *systemIcon = [RCTConvert NSString:menuItem[@"systemIcon"]];
-        UIImage *image = [UIImage systemImageNamed:systemIcon];
-        BOOL destructive = [RCTConvert BOOL:menuItem[@"destructive"]];
-        BOOL disabled = [RCTConvert BOOL:menuItem[@"disabled"]];
-
-        UIAction *action = [UIAction actionWithTitle:title
-                                               image:image
-                                          identifier:nil
-                                             handler:^(__kindof UIAction * _Nonnull action) {
-          if (self.onMenu != nil) {
-            NSMutableDictionary *eventData = [[self eventDataForIndexPath:indexPath] mutableCopy];
-            [eventData setValue:@(index) forKey:@"index"];
-            [eventData setValue:key forKey:@"key"];
-            self.onMenu(eventData);
-          }
-        }];
-
-        action.attributes =
-          (destructive ? UIMenuElementAttributesDestructive : 0) |
-          (disabled ? UIMenuElementAttributesDisabled : 0);
-
-        [actions addObject:action];
+        UIMenuElement *action = [self convertMenuElement:menu[index]
+                                         atMenuIndexPath:@[@(index)]
+                                          atRowIndexPath:indexPath];
+        [children addObject:action];
       }
 
-      return [UIMenu menuWithTitle:@"" children:actions];
+      return [UIMenu menuWithTitle:@""
+                          children:children];
     }];
+}
+
+- (UIMenuElement *)convertMenuElement:(NSDictionary *)menuItem
+                      atMenuIndexPath:(NSArray<NSNumber *> *)menuIndexPath
+                       atRowIndexPath:(NSIndexPath *)rowIndexPath
+API_AVAILABLE(ios(13.0))
+{
+  NSArray *childrenMenuItems = [RCTConvert NSArray:menuItem[@"children"]];
+
+  NSString *title = [RCTConvert NSString:menuItem[@"title"]];
+  NSString *key = [RCTConvert NSString:menuItem[@"key"]];
+  NSString *systemIcon = [RCTConvert NSString:menuItem[@"systemIcon"]];
+  UIImage *image = [UIImage systemImageNamed:systemIcon];
+  BOOL destructive = [RCTConvert BOOL:menuItem[@"destructive"]];
+  BOOL disabled = [RCTConvert BOOL:menuItem[@"disabled"]];
+
+  if (childrenMenuItems != nil) {
+    NSMutableArray<UIMenuElement *> *children = [[NSMutableArray alloc] initWithCapacity:childrenMenuItems.count];
+
+    for (NSInteger index = 0; index < childrenMenuItems.count; index += 1) {
+      UIMenuElement *action = [self convertMenuElement:childrenMenuItems[index]
+                                       atMenuIndexPath:[menuIndexPath arrayByAddingObject:@(index)]
+                                        atRowIndexPath:rowIndexPath];
+      [children addObject:action];
+    }
+
+    UIMenuOptions options =
+      ([RCTConvert BOOL:menuItem[@"inline"]] ? UIMenuOptionsDisplayInline : 0) |
+      (destructive ? UIMenuOptionsDestructive : 0);
+
+    return [UIMenu menuWithTitle:title
+                           image:image
+                      identifier:nil
+                         options:options
+                        children:children];
+  } else {
+    UIAction *action = [UIAction actionWithTitle:title
+                                           image:image
+                                      identifier:nil
+                                         handler:^(__kindof UIAction * _Nonnull action) {
+      if (self.onMenu != nil) {
+        NSMutableDictionary *eventData = [[self eventDataForIndexPath:rowIndexPath] mutableCopy];
+        [eventData setValue:menuIndexPath forKey:@"indexPath"];
+        [eventData setValue:key forKey:@"key"];
+        self.onMenu(eventData);
+      }
+    }];
+
+    action.attributes =
+      (destructive ? UIMenuElementAttributesDestructive : 0) |
+      (disabled ? UIMenuElementAttributesDisabled : 0);
+
+    return action;
+  }
 }
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView

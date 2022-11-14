@@ -19,7 +19,9 @@ export type MenuItem<Row> = {
   systemIcon: string;
   destructive?: boolean;
   disabled?: boolean;
-  onPress: (e: RowEvent<Row>) => void;
+  inline?: boolean;
+  children?: MenuItem<Row>[];
+  onPress?: (e: RowEvent<Row>) => void;
 };
 
 export type IndexPathRow<Row> = {

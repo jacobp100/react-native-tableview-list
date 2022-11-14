@@ -6,8 +6,8 @@ The aim is to have the fully native experience: swipe to delete (with correct ha
 
 Only renders custom cells - if you need the standard styles, use [react-native-tableview](https://github.com/aksonov/react-native-tableview). This library will also handle custom cells - but doing so breaks stuff like `Context`.
 
-|                       |                       |                       |
-| --------------------- | --------------------- | --------------------- |
+|                                                                                                             |                                                                                                             |                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | ![Screenshot 1](https://github.com/jacobp100/react-native-tableview-list/blob/master/assets/1.png?raw=true) | ![Screenshot 2](https://github.com/jacobp100/react-native-tableview-list/blob/master/assets/2.png?raw=true) | ![Screenshot 3](https://github.com/jacobp100/react-native-tableview-list/blob/master/assets/3.png?raw=true) |
 
 ## Installation
@@ -80,6 +80,11 @@ type MenuItem<Row> = {
   destructive?: boolean;
   // Greyed out
   disabled?: boolean;
+  // Display children inline - rather than as a submenu
+  inline?: boolean;
+  // Submenu
+  children?: MenuItem<Row>[];
+  // On press
   onPress: (e: RowEvent<Row>) => void;
 };
 
