@@ -1,8 +1,8 @@
 # react-native-tableview-list
 
-[SectionList](https://reactnative.dev/docs/sectionlist)-like component backed by a [UITableView](https://developer.apple.com/documentation/uikit/uitableview) (iOS only).
+<a href="https://jacobdoescode.com/technicalc"><img alt="Part of the TechniCalc Project" src="https://github.com/jacobp100/technicalc-core/blob/master/banner.png" width="200" height="60"></a>
 
-Exported from [TechniCalc](https://jacobdoescode.com/technicalc).
+[SectionList](https://reactnative.dev/docs/sectionlist)-like component backed by a [UITableView](https://developer.apple.com/documentation/uikit/uitableview) (iOS only).
 
 The aim is to have the fully native experience: swipe to delete (with correct haptics and automatic dismissal when scrolling), press and hold menus etc. Performance is probably on par with the default `SectionList` component.
 
