@@ -16,7 +16,7 @@ export type Section<Row> = {
 export type MenuItem<Row> = {
   title: string;
   key?: string;
-  systemIcon: string;
+  systemIcon?: string;
   destructive?: boolean;
   disabled?: boolean;
   inline?: boolean;

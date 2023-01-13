@@ -267,7 +267,7 @@ API_AVAILABLE(ios(13.0))
   NSString *title = [RCTConvert NSString:menuItem[@"title"]];
   NSString *key = [RCTConvert NSString:menuItem[@"key"]];
   NSString *systemIcon = [RCTConvert NSString:menuItem[@"systemIcon"]];
-  UIImage *image = [UIImage systemImageNamed:systemIcon];
+  UIImage *image = systemIcon != nil ? [UIImage systemImageNamed:systemIcon] : nil;
   BOOL destructive = [RCTConvert BOOL:menuItem[@"destructive"]];
   BOOL disabled = [RCTConvert BOOL:menuItem[@"disabled"]];
 
