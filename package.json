@@ -1,6 +1,6 @@
 {
   "name": "react-native-tableview-list",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "UITableView-based SectionList",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
