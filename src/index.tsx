@@ -92,7 +92,7 @@ export type Props<Row> = ScrollView['props'] & {
   maxToRenderPerBatch?: number;
   windowSize?: number;
   updateCellsBatchingPeriod?: number;
-  ListEmptyComponent?: any;
+  ListEmptyComponent?: () => JSX.Element;
 };
 
 const defaultKeyExtractor = (data: any) => data.key;
@@ -306,14 +306,14 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
     >
       {sections.length > 0 ? (
         childrenBatched
-      ) : (
+      ) : ListEmptyComponent != null ? (
         <View
           nativeID="TableViewListEmptyComponent"
           style={styles.listEmptyContainer}
         >
           <ListEmptyComponent />
         </View>
-      )}
+      ) : null}
     </NativeComponent>
   );
 };
