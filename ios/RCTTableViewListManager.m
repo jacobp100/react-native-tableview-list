@@ -1,5 +1,6 @@
 #import "RCTTableViewListManager.h"
 #import "RCTTableViewList.h"
+#import "RCTTableViewListData.h"
 
 @implementation RCTTableViewListManager
 
@@ -7,7 +8,7 @@ RCT_EXPORT_MODULE()
 
 - (UIView *)view
 {
-  return [[RCTTableViewList alloc] init];
+  return [[RCTTableViewList alloc] initWithBridge:self.bridge];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(sectionData, RCTTableViewListData, RCTTableViewList) {

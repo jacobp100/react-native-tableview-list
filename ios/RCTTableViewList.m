@@ -1,77 +1,30 @@
 #import "RCTTableViewList.h"
+#import "RCTTableViewListCell.h"
+#import "RCTTableViewListData.h"
+#import <React/RCTBridge.h>
 #import <React/UIView+React.h>
 #import <React/RCTView.h>
 #import <React/RCTConvert.h>
 #import <React/RCTScrollEvent.h>
 
-@implementation RCTTableViewListRow
-
-- (instancetype)initWithKey:(NSString *)key
-{
-  if (self = [super init]) {
-    _key = key;
-  }
-  return self;
-}
-
-@end
-
-@implementation RCTTableViewListSection
-
-- (instancetype)initWithKey:(NSString *)key title:(NSString *)title rows:(NSArray<RCTTableViewListRow *> *)rows menu:(NSArray<NSDictionary *> *)menu canDeleteRows:(BOOL)canDeleteRows
-{
-  if (self = [super init]) {
-    _key = key;
-    _title = title;
-    _rows = rows;
-    _menu = menu;
-    _canDeleteRows = canDeleteRows;
-  }
-  return self;
-}
-
-@end
-
-@implementation RCTTableViewListData
-
-- (instancetype)initWithSections:(NSArray<RCTTableViewListSection *> *)sections
-{
-  if (self = [super init]) {
-    NSMutableDictionary *indexPathForKey = [NSMutableDictionary new];
-
-    for (NSInteger section = 0; section < sections.count; section += 1) {
-      NSArray<RCTTableViewListRow *> *rows = sections[section].rows;
-
-      for (NSInteger row = 0; row < rows.count; row += 1) {
-        [indexPathForKey
-         setObject:[NSIndexPath indexPathForRow:row inSection:section]
-         forKey:rows[row].key];
-      }
-    }
-
-    _sections = sections;
-    _indexPathForKey = indexPathForKey;
-  }
-  return self;
-}
-
-@end
-
 @implementation RCTTableViewList {
+  __weak RCTBridge *_bridge;
   BOOL _ready;
   NSMutableDictionary<NSString *, UIView *> *_cells;
   NSMutableArray<NSString *> *_pendingCellUpdates;
 }
 
-- (instancetype)init
+- (instancetype)initWithBridge:(RCTBridge *)bridge
 {
   self = [super init];
   if (self) {
+    _bridge = bridge;
+
     self.delegate = self;
     self.dataSource = self;
     _cells = [NSMutableDictionary new];
     _pendingCellUpdates = [NSMutableArray new];
-    [self registerClass:UITableViewCell.class forCellReuseIdentifier:@"cell"];
+    [self registerClass:RCTTableViewListCell.class forCellReuseIdentifier:@"cell"];
 
     // React Native defaults
     self.backgroundColor = [UIColor clearColor];
@@ -314,7 +267,8 @@ API_AVAILABLE(ios(13.0))
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView
                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
-  UITableViewCell *cell = [self dequeueReusableCellWithIdentifier:@"cell"];
+  RCTTableViewListCell *cell = [self dequeueReusableCellWithIdentifier:@"cell"];
+  cell.bridge = _bridge;
   NSString *key = _sectionData.sections[indexPath.section].rows[indexPath.row].key;
 
   [self configureCell:cell withKey:key];
@@ -322,18 +276,18 @@ API_AVAILABLE(ios(13.0))
   return cell;
 }
 
-- (void)configureCell:(UITableViewCell *)container
+- (void)configureCell:(UITableViewCell *)cell
               withKey:(NSString *)key
 {
-  container.backgroundColor = [UIColor clearColor];
+  cell.backgroundColor = [UIColor clearColor];
 
-  for (UIView *subview in container.contentView.subviews) {
+  for (UIView *subview in cell.contentView.subviews) {
     [subview removeFromSuperview];
   }
 
   UIView *content = _cells[key];
-  if (content != nil) {
-    [container.contentView addSubview:content];
+  if (cell != nil) {
+    [cell.contentView addSubview:content];
   }
 }
 
