@@ -95,7 +95,11 @@
       continue;
     }
 
-    [self configureCell:cell withKey:key];
+    BOOL didConfigure = [self configureCell:cell withKey:key];
+    if (didConfigure) {
+      [cell setNeedsLayout];
+      [cell layoutIfNeeded];
+    }
   }
 
   [_pendingCellUpdates removeAllObjects];
@@ -276,18 +280,27 @@ API_AVAILABLE(ios(13.0))
   return cell;
 }
 
-- (void)configureCell:(UITableViewCell *)cell
+- (BOOL)configureCell:(UITableViewCell *)cell
               withKey:(NSString *)key
 {
   cell.backgroundColor = [UIColor clearColor];
 
-  for (UIView *subview in cell.contentView.subviews) {
+  NSArray<UIView *> *subviews = cell.contentView.subviews;
+  UIView *content = _cells[key];
+
+  if (subviews.count == 1 && subviews[0] == content) {
+    return YES;
+  }
+
+  for (UIView *subview in subviews) {
     [subview removeFromSuperview];
   }
 
-  UIView *content = _cells[key];
   if (cell != nil) {
     [cell.contentView addSubview:content];
+    return YES;
+  } else {
+    return NO;
   }
 }
 
