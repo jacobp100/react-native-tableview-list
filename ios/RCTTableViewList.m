@@ -81,6 +81,11 @@
   }
 
   if (!_ready) {
+    // When !_ready, the number of sections is overridded as zero
+    // So we cannot call `cellForRowAtIndexPath` - as the index path won't exist
+    return;
+  } else if (self.window == nil) {
+    // Raises UITableViewAlertForLayoutOutsideViewHierarchy otherwise
     return;
   }
 
@@ -95,11 +100,7 @@
       continue;
     }
 
-    BOOL didConfigure = [self configureCell:cell withKey:key];
-    if (didConfigure) {
-      [cell setNeedsLayout];
-      [cell layoutIfNeeded];
-    }
+    [self configureCell:cell withKey:key];
   }
 
   [_pendingCellUpdates removeAllObjects];
@@ -280,7 +281,7 @@ API_AVAILABLE(ios(13.0))
   return cell;
 }
 
-- (BOOL)configureCell:(UITableViewCell *)cell
+- (void)configureCell:(UITableViewCell *)cell
               withKey:(NSString *)key
 {
   cell.backgroundColor = [UIColor clearColor];
@@ -289,8 +290,10 @@ API_AVAILABLE(ios(13.0))
   UIView *content = _cells[key];
 
   if (subviews.count == 1 && subviews[0] == content) {
-    return YES;
+    return;
   }
+
+  [cell setNeedsLayout];
 
   for (UIView *subview in subviews) {
     [subview removeFromSuperview];
@@ -298,9 +301,6 @@ API_AVAILABLE(ios(13.0))
 
   if (cell != nil && content != nil) {
     [cell.contentView addSubview:content];
-    return YES;
-  } else {
-    return NO;
   }
 }
 
