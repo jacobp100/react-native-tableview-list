@@ -296,7 +296,7 @@ API_AVAILABLE(ios(13.0))
     [subview removeFromSuperview];
   }
 
-  if (cell != nil) {
+  if (cell != nil && content != nil) {
     [cell.contentView addSubview:content];
     return YES;
   } else {
