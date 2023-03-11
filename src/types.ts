@@ -5,11 +5,13 @@ export type RowEvent<Row> = {
   index: number;
 };
 
-export type MoveRowEvent = {
-  fromSection: number;
-  fromRow: number;
-  toSection: number;
-  toRow: number;
+export type MoveRowEvent<Row> = {
+  fromItem: Row;
+  fromSection: Section<Row>;
+  fromIndex: number;
+  toItem: Row;
+  toSection: Section<Row>;
+  toIndex: number;
 };
 
 export type Section<Row> = {

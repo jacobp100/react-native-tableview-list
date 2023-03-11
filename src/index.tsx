@@ -73,6 +73,13 @@ type RowBasicEventData = {
   rowKey: number;
 };
 
+type MoveEventData = {
+  fromSection: number;
+  fromRow: number;
+  toSection: number;
+  toRow: number;
+};
+
 type MenuEventData = RowBasicEventData & {
   indexPath: number[];
   key: string | undefined;
@@ -90,7 +97,7 @@ export type Props<Row> = ScrollView['props'] & {
   onPressRow?: (event: RowEvent<Row>) => void;
   onDeleteRow?: (event: RowEvent<Row>) => void;
   moveRows?: 'none' | 'within-section';
-  onMoveRow?: (event: MoveRowEvent) => void;
+  onMoveRow?: (event: MoveRowEvent<Row>) => void;
   editing?: boolean;
   menu?: MenuItem<Row>[];
   initialNumToRender?: number;
@@ -191,10 +198,22 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
   );
 
   const onMoveRow = React.useCallback(
-    (e: NativeSyntheticEvent<MoveRowEvent>) => {
-      baseOnMoveRow?.(e.nativeEvent);
+    (e: NativeSyntheticEvent<MoveEventData>) => {
+      const data = e.nativeEvent;
+      const fromSection = sections[data.fromSection];
+      const fromItem = fromSection.data[data.fromRow];
+      const toSection = sections[data.toSection];
+      const toItem = toSection.data[data.toRow];
+      baseOnMoveRow?.({
+        fromItem,
+        fromIndex: data.fromRow,
+        fromSection,
+        toItem,
+        toIndex: data.toRow,
+        toSection,
+      });
     },
-    [baseOnMoveRow]
+    [sections, baseOnMoveRow]
   );
 
   const menu = React.useMemo(

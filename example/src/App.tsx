@@ -58,17 +58,16 @@ export default function App() {
   }, []);
 
   const moveRow = React.useCallback(
-    ({ fromSection, fromRow, toRow }: MoveRowEvent) => {
+    ({ fromSection, fromItem, fromIndex, toIndex }: MoveRowEvent<any>) => {
       setSections((ss) => {
-        return ss.map((s, section) => {
-          if (section !== fromSection) {
+        return ss.map((s) => {
+          if (s !== fromSection) {
             return s;
           }
 
           const data = s.data.slice();
-          const item = data[fromRow];
-          data.splice(fromRow, 1);
-          data.splice(toRow, 0, item);
+          data.splice(fromIndex, 1);
+          data.splice(toIndex, 0, fromItem);
           return { ...s, data };
         });
       });
