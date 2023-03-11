@@ -51,6 +51,7 @@ Properties marked with an asterisk (\*) are required
 | separatorColor            | string                                                                     | Color string or PlatformColor                                                                 |
 | cellContainerStyle        | style                                                                      | Customise cell style: do not chagne postion, width, or height                                 |
 | onPressRow                | ({ item, index, section }) => void                                         | Called when a row is pressed                                                                  |
+| editing                   | boolean                                                                    | Enable indicators for moving and deleting rows                                                |
 | moveRows                  | 'none' or 'within-section'                                                 | Allows re-ordering of rows                                                                    |
 | onMoveRow                 | ({ fromSection, fromItem, fromIndex, toSection, toItem, toIndex }) => void | Called when a row is moved (see moveRows) - you **MUST** udpate your data when this is called |
 | onDeleteRow               | ({ item, index, section }) => void                                         | Enables swipe to delete - you **MUST** delete the item when this is called                    |
