@@ -5,11 +5,19 @@ export type RowEvent<Row> = {
   index: number;
 };
 
+export type MoveRowEvent = {
+  fromSection: number;
+  fromRow: number;
+  toSection: number;
+  toRow: number;
+};
+
 export type Section<Row> = {
   title: string;
   key?: string;
   data: Row[];
   menu?: MenuItem<Row>[];
+  moveRows?: 'none' | 'within-section';
   onDeleteRow?: (e: RowEvent<Row>) => void;
 };
 

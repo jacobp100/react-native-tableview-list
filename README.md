@@ -41,23 +41,25 @@ If you need a `FlatList`-like list, pass a single section with the title set to 
 
 Properties marked with an asterisk (\*) are required
 
-| Name                      | Type                                       | Description                                                                |
-| ------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
-| sections \*               | Section[]                                  | See below for props                                                        |
-| renderItem \*             | ({ item, index, section }) => ReactElement | Render row                                                                 |
-| keyExtractor              | (Row, index, sectionIndex) => string       | Needed if data does not have a `key` or `id` property                      |
-| rowHeight \*              | number                                     | Currently all rows must have the same, fixed height                        |
-| separatorInset            | { left?: number, right?: number }          | Margin applied to the left and right of each separator                     |
-| separatorColor            | string                                     | Color string or PlatformColor                                              |
-| cellContainerStyle        | style                                      | Customise cell style: do not chagne postion, width, or height              |
-| onPressRow                | ({ item, index, section }) => void         | Called when a row is pressed                                               |
-| onDeleteRow               | ({ item, index, section }) => void         | Enables swipe to delete - you **MUST** delete the item when this is called |
-| menu                      | MenuItem[]                                 | See below for props                                                        |
-| initialNumToRender        | number                                     | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)        |
-| maxToRenderPerBatch       | number                                     | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)        |
-| windowSize                | number                                     | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)        |
-| updateCellsBatchingPeriod | number                                     | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)        |
-| ListEmptyComponent        | ReactElement                               | Displayed when there's no data                                             |
+| Name                      | Type                                                 | Description                                                                                   |
+| ------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| sections \*               | Section[]                                            | See below for props                                                                           |
+| renderItem \*             | ({ item, index, section }) => ReactElement           | Render row                                                                                    |
+| keyExtractor              | (Row, index, sectionIndex) => string                 | Needed if data does not have a `key` or `id` property                                         |
+| rowHeight \*              | number                                               | Currently all rows must have the same, fixed height                                           |
+| separatorInset            | { left?: number, right?: number }                    | Margin applied to the left and right of each separator                                        |
+| separatorColor            | string                                               | Color string or PlatformColor                                                                 |
+| cellContainerStyle        | style                                                | Customise cell style: do not chagne postion, width, or height                                 |
+| onPressRow                | ({ item, index, section }) => void                   | Called when a row is pressed                                                                  |
+| moveRows                  | 'none' or 'within-section'                           | Allows re-ordering of rows                                                                    |
+| onMoveRow                 | ({ fromSection, fromRow, toSection, toRow }) => void | Called when a row is moved (see moveRows) - you **MUST** udpate your data when this is called |
+| onDeleteRow               | ({ item, index, section }) => void                   | Enables swipe to delete - you **MUST** delete the item when this is called                    |
+| menu                      | MenuItem[]                                           | See below for props                                                                           |
+| initialNumToRender        | number                                               | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)                           |
+| maxToRenderPerBatch       | number                                               | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)                           |
+| windowSize                | number                                               | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)                           |
+| updateCellsBatchingPeriod | number                                               | See [VirtualisedList](https://reactnative.dev/docs/virtualizedlist)                           |
+| ListEmptyComponent        | ReactElement                                         | Displayed when there's no data                                                                |
 
 ### Types
 
@@ -68,6 +70,12 @@ type Section<Row> = {
   data: Row[];
   // Enables press and hold interaction
   menu?: MenuItem<Row>[];
+  // Allows re-ordering of rows within a section
+  // **MUST** be used with onMoveRow
+  moveRows?: 'none' | 'within-section';
+  // Used with moveRows property
+  // You **MUST** update your data when this is called
+  onMoveRow: (e: MoveRowEvent) => void;
   // Enables swipe to delete for section
   // You **MUST** delete the item when this is called
   onDeleteRow?: (e: RowEvent<Row>) => void;
@@ -94,6 +102,13 @@ type RowEvent<Row> = {
   item: Row;
   section: Section<Row>;
   index: number;
+};
+
+type MoveRowEvent = {
+  fromSection: number;
+  fromRow: number;
+  toSection: number;
+  toRow: number;
 };
 ```
 

@@ -2,6 +2,17 @@
 #import "RCTTableViewList.h"
 #import "RCTTableViewListData.h"
 
+#import <React/RCTConvert.h>
+
+@implementation RCTConvert(RCTTableViewListRowMoving)
+
+RCT_ENUM_CONVERTER(RCTTableViewListRowMoving, (@{
+  @"none": @(RCTTableViewListRowMovingNone),
+  @"within-section": @(RCTTableViewListRowMovingWithinSection),
+}), RCTTableViewListRowMovingNone, intValue)
+
+@end
+
 @implementation RCTTableViewListManager
 
 RCT_EXPORT_MODULE()
@@ -24,6 +35,7 @@ RCT_CUSTOM_VIEW_PROPERTY(sectionData, RCTTableViewListData, RCTTableViewList) {
     NSMutableArray *rows = [[NSMutableArray alloc] initWithCapacity:jsonRows.count];
     NSArray *menu = [RCTConvert NSArray:sectionJson[@"menu"]];
     BOOL canDeleteRows = [RCTConvert BOOL:sectionJson[@"canDeleteRows"]];
+    RCTTableViewListRowMoving moveRows = [RCTConvert RCTTableViewListRowMoving:sectionJson[@"moveRows"]];
 
     for (id rowJson in jsonRows) {
       NSString *rowKey = [RCTConvert NSString:rowJson[@"key"]];
@@ -35,7 +47,8 @@ RCT_CUSTOM_VIEW_PROPERTY(sectionData, RCTTableViewListData, RCTTableViewList) {
                                                                title:title
                                                                 rows:rows
                                                                 menu:menu
-                                                       canDeleteRows:canDeleteRows]];
+                                                       canDeleteRows:canDeleteRows
+                                                            moveRows:moveRows]];
   }
 
   view.sectionData = [[RCTTableViewListData alloc] initWithSections:sections];
@@ -45,8 +58,10 @@ RCT_EXPORT_VIEW_PROPERTY(menu, NSArray)
 RCT_EXPORT_VIEW_PROPERTY(rowHeight, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(separatorInset, UIEdgeInsets)
 RCT_EXPORT_VIEW_PROPERTY(separatorColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(editing, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(canDeleteRows, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onPressRow, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onMoveRow, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onDeleteRow, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMenu, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onVisibleIndexPathsChanged, RCTDirectEventBlock)

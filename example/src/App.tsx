@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import TableviewListView, {
   MenuItem,
+  MoveRowEvent,
   RowEvent,
   Section,
 } from 'react-native-tableview-list';
@@ -34,6 +35,7 @@ const defaultSections: Section<string>[] = [
     title: 'Second Section',
     key: 'second',
     data: Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`),
+    moveRows: 'within-section',
   },
   {
     title: 'Third Section',
@@ -43,6 +45,7 @@ const defaultSections: Section<string>[] = [
 ];
 
 export default function App() {
+  const [editing, setEditing] = React.useState(false);
   const [sections, setSections] = React.useState(defaultSections);
 
   const deleteRow = React.useCallback(({ index, section }: RowEvent<any>) => {
@@ -54,8 +57,32 @@ export default function App() {
     });
   }, []);
 
+  const moveRow = React.useCallback(
+    ({ fromSection, fromRow, toRow }: MoveRowEvent) => {
+      setSections((ss) => {
+        return ss.map((s, section) => {
+          if (section !== fromSection) {
+            return s;
+          }
+
+          const data = s.data.slice();
+          const item = data[fromRow];
+          data.splice(fromRow, 1);
+          data.splice(toRow, 0, item);
+          return { ...s, data };
+        });
+      });
+    },
+    []
+  );
+
   const menu = React.useMemo(
     (): MenuItem<string>[] => [
+      {
+        title: 'Toggle Editing',
+        systemIcon: 'square.and.pencil',
+        onPress: () => setEditing((e) => !e),
+      },
       {
         title: 'Alert',
         systemIcon: 'eyeglasses',
@@ -89,6 +116,8 @@ export default function App() {
         onPressRow={React.useCallback(({ item }) => Alert.alert(item), [])}
         menu={menu}
         onDeleteRow={deleteRow}
+        onMoveRow={moveRow}
+        editing={editing}
       />
     </SafeAreaView>
   );

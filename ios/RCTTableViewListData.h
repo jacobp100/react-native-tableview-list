@@ -1,3 +1,8 @@
+typedef NS_ENUM(NSInteger, RCTTableViewListRowMoving) {
+  RCTTableViewListRowMovingNone,
+  RCTTableViewListRowMovingWithinSection
+};
+
 @interface RCTTableViewListRow : NSObject
 
 - (instancetype)initWithKey:(NSString *)key;
@@ -7,12 +12,13 @@
 
 @interface RCTTableViewListSection : NSObject
 
-- (instancetype)initWithKey:(NSString *)key title:(NSString *)title rows:(NSArray<RCTTableViewListRow *> *)rows menu:(NSArray<NSDictionary *> *)menu canDeleteRows:(BOOL)canDeleteRows;
+- (instancetype)initWithKey:(NSString *)key title:(NSString *)title rows:(NSArray<RCTTableViewListRow *> *)rows menu:(NSArray<NSDictionary *> *)menu canDeleteRows:(BOOL)canDeleteRows moveRows:(RCTTableViewListRowMoving)moveRows;
 @property (nonatomic, copy) NSString *key;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSArray<RCTTableViewListRow *> *rows;
 @property (nonatomic, copy) NSArray<NSDictionary *> *menu;
 @property (nonatomic, assign) BOOL canDeleteRows;
+@property (nonatomic, assign) RCTTableViewListRowMoving moveRows;
 
 @end
 

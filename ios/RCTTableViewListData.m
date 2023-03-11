@@ -14,7 +14,12 @@
 
 @implementation RCTTableViewListSection
 
-- (instancetype)initWithKey:(NSString *)key title:(NSString *)title rows:(NSArray<RCTTableViewListRow *> *)rows menu:(NSArray<NSDictionary *> *)menu canDeleteRows:(BOOL)canDeleteRows
+- (instancetype)initWithKey:(NSString *)key
+                      title:(NSString *)title
+                       rows:(NSArray<RCTTableViewListRow *> *)rows
+                       menu:(NSArray<NSDictionary *> *)menu
+              canDeleteRows:(BOOL)canDeleteRows
+                   moveRows:(RCTTableViewListRowMoving)moveRows
 {
   if (self = [super init]) {
     _key = key;
@@ -22,6 +27,7 @@
     _rows = rows;
     _menu = menu;
     _canDeleteRows = canDeleteRows;
+    _moveRows = moveRows;
   }
   return self;
 }

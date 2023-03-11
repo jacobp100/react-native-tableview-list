@@ -6,6 +6,7 @@
 #import <React/RCTView.h>
 #import <React/RCTConvert.h>
 #import <React/RCTScrollEvent.h>
+#import <React/RCTAssert.h>
 
 @implementation RCTTableViewList {
   __weak RCTBridge *_bridge;
@@ -156,9 +157,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
     return;
   }
 
-  if (self.onDeleteRow) {
-    self.onDeleteRow([self eventDataForIndexPath:indexPath]);
-  }
+  self.onDeleteRow([self eventDataForIndexPath:indexPath]);
 
   NSMutableArray<RCTTableViewListSection *> *sections = [_sectionData.sections mutableCopy];
   RCTTableViewListSection *section = sections[indexPath.section];
@@ -171,7 +170,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
                                  title:section.title
                                  rows:rows
                                  menu:section.menu
-                                 canDeleteRows:section.canDeleteRows];
+                                 canDeleteRows:section.canDeleteRows
+                                 moveRows:section.moveRows];
 
   _sectionData = [[RCTTableViewListData alloc] initWithSections:sections];
 
@@ -186,6 +186,61 @@ forRowAtIndexPath:(NSIndexPath *)indexPath
   return canDeleteRows ? UITableViewCellEditingStyleDelete : UITableViewCellEditingStyleNone;
 }
 
+- (BOOL)tableView:(UITableView *)tableView
+canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return _sectionData.sections[indexPath.section].moveRows != RCTTableViewListRowMovingNone;
+}
+
+- (NSIndexPath *)tableView:(UITableView *)tableView
+targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath
+       toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+  if (sourceIndexPath.section == proposedDestinationIndexPath.section) {
+    return proposedDestinationIndexPath;
+  } else if (sourceIndexPath.section > proposedDestinationIndexPath.section) {
+    return [NSIndexPath indexPathForRow:0
+                              inSection:sourceIndexPath.section];
+  } else {
+    NSUInteger numRows = _sectionData.sections[sourceIndexPath.section].rows.count;
+    return [NSIndexPath indexPathForRow:numRows - 1
+                              inSection:sourceIndexPath.section];
+  }
+}
+
+- (void)tableView:(UITableView *)tableView
+moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath
+      toIndexPath:(NSIndexPath *)destinationIndexPath
+{
+  RCTAssert(sourceIndexPath.section == destinationIndexPath.section,
+            @"Expected row to move within same section");
+
+  self.onMoveRow(@{
+    @"fromSection": @(sourceIndexPath.section),
+    @"fromRow": @(sourceIndexPath.row),
+    @"toSection": @(destinationIndexPath.section),
+    @"toRow": @(destinationIndexPath.row),
+  });
+
+  NSMutableArray<RCTTableViewListSection *> *sections = [_sectionData.sections mutableCopy];
+
+  RCTTableViewListSection *section = sections[sourceIndexPath.section];
+  NSMutableArray<RCTTableViewListRow *> *rows = [section.rows mutableCopy];
+  RCTTableViewListRow *row = rows[sourceIndexPath.row];
+  [rows removeObjectAtIndex:sourceIndexPath.row];
+  [rows insertObject:row atIndex:destinationIndexPath.row];
+
+  sections[sourceIndexPath.section] = [[RCTTableViewListSection alloc]
+                                       initWithKey:section.key
+                                       title:section.title
+                                       rows:rows
+                                       menu:section.menu
+                                       canDeleteRows:section.canDeleteRows
+                                       moveRows:section.moveRows];
+
+  _sectionData = [[RCTTableViewListData alloc] initWithSections:sections];
+}
+
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView
 contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                                     point:(CGPoint)point
@@ -197,22 +252,22 @@ API_AVAILABLE(ios(13.0)) {
   }
 
   return
-    [UIContextMenuConfiguration
-     configurationWithIdentifier:nil
-     previewProvider:nil
-     actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
-      NSMutableArray<UIMenuElement *> *children = [[NSMutableArray alloc] initWithCapacity:menu.count];
+  [UIContextMenuConfiguration
+   configurationWithIdentifier:nil
+   previewProvider:nil
+   actionProvider:^UIMenu * _Nullable(NSArray<UIMenuElement *> * _Nonnull suggestedActions) {
+    NSMutableArray<UIMenuElement *> *children = [[NSMutableArray alloc] initWithCapacity:menu.count];
 
-      for (NSInteger index = 0; index < menu.count; index += 1) {
-        UIMenuElement *action = [self convertMenuElement:menu[index]
-                                         atMenuIndexPath:@[@(index)]
-                                          atRowIndexPath:indexPath];
-        [children addObject:action];
-      }
+    for (NSInteger index = 0; index < menu.count; index += 1) {
+      UIMenuElement *action = [self convertMenuElement:menu[index]
+                                       atMenuIndexPath:@[@(index)]
+                                        atRowIndexPath:indexPath];
+      [children addObject:action];
+    }
 
-      return [UIMenu menuWithTitle:@""
-                          children:children];
-    }];
+    return [UIMenu menuWithTitle:@""
+                        children:children];
+  }];
 }
 
 - (UIMenuElement *)convertMenuElement:(NSDictionary *)menuItem
@@ -240,8 +295,8 @@ API_AVAILABLE(ios(13.0))
     }
 
     UIMenuOptions options =
-      ([RCTConvert BOOL:menuItem[@"inline"]] ? UIMenuOptionsDisplayInline : 0) |
-      (destructive ? UIMenuOptionsDestructive : 0);
+    ([RCTConvert BOOL:menuItem[@"inline"]] ? UIMenuOptionsDisplayInline : 0) |
+    (destructive ? UIMenuOptionsDestructive : 0);
 
     return [UIMenu menuWithTitle:title
                            image:image
@@ -262,8 +317,8 @@ API_AVAILABLE(ios(13.0))
     }];
 
     action.attributes =
-      (destructive ? UIMenuElementAttributesDestructive : 0) |
-      (disabled ? UIMenuElementAttributesDisabled : 0);
+    (destructive ? UIMenuElementAttributesDestructive : 0) |
+    (disabled ? UIMenuElementAttributesDisabled : 0);
 
     return action;
   }
@@ -311,7 +366,7 @@ willDisplayHeaderView:(UIView *)view
        forSection:(NSInteger)section
 {
   UIBackgroundConfiguration *backgroundConfig =
-    [UIBackgroundConfiguration listPlainHeaderFooterConfiguration];
+  [UIBackgroundConfiguration listPlainHeaderFooterConfiguration];
   backgroundConfig.backgroundColor = [UIColor tertiarySystemBackgroundColor];
   backgroundConfig.visualEffect = nil;
   ((UITableViewHeaderFooterView *)view).backgroundConfiguration = backgroundConfig;

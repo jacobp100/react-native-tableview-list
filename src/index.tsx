@@ -15,6 +15,7 @@ import {
 import type {
   IndexPathRow,
   MenuItem,
+  MoveRowEvent,
   RowEvent,
   Section,
   VisibleIndexPaths,
@@ -59,9 +60,10 @@ type SectionData<Row> = {
   rows: Array<{ key: string }>;
   menu: MenuItemWithoutCallbacks<Row>[] | undefined;
   canDeleteRows?: boolean;
+  moveRows?: 'none' | 'within-section';
 };
 
-export type { Section, RowEvent };
+export type { Section, RowEvent, MoveRowEvent };
 export type { MenuItem };
 
 type RowBasicEventData = {
@@ -87,6 +89,9 @@ export type Props<Row> = ScrollView['props'] & {
   cellContainerStyle?: StyleProp<ViewStyle>;
   onPressRow?: (event: RowEvent<Row>) => void;
   onDeleteRow?: (event: RowEvent<Row>) => void;
+  moveRows?: 'none' | 'within-section';
+  onMoveRow?: (event: MoveRowEvent) => void;
+  editing?: boolean;
   menu?: MenuItem<Row>[];
   initialNumToRender?: number;
   maxToRenderPerBatch?: number;
@@ -116,6 +121,9 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
     cellContainerStyle,
     onPressRow: baseOnPressRow,
     onDeleteRow: baseOnDeleteRow,
+    onMoveRow: baseOnMoveRow,
+    moveRows = 'none',
+    editing,
     menu: baseMenu,
     initialNumToRender = 10,
     maxToRenderPerBatch = 10,
@@ -141,9 +149,10 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
         })),
         menu: section.menu?.map(removeMenuItemCallbacks),
         canDeleteRows: section.onDeleteRow != null || canDeleteRows,
+        moveRows: section.moveRows ?? moveRows,
       })
     );
-  }, [sections, keyExtractor, canDeleteRows]);
+  }, [sections, keyExtractor, canDeleteRows, moveRows]);
 
   const rowData = React.useMemo(() => {
     const out: IndexPathRow<Row>[] = [];
@@ -179,6 +188,13 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
       callback?.({ item, index: rowIndex, section });
     },
     [sections, baseOnDeleteRow]
+  );
+
+  const onMoveRow = React.useCallback(
+    (e: NativeSyntheticEvent<MoveRowEvent>) => {
+      baseOnMoveRow?.(e.nativeEvent);
+    },
+    [baseOnMoveRow]
   );
 
   const menu = React.useMemo(
@@ -299,6 +315,8 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
       separatorColor={separatorColor}
       onPressRow={onPressRow}
       onDeleteRow={onDeleteRow}
+      onMoveRow={onMoveRow}
+      editing={editing}
       menu={menu}
       onMenu={onMenu}
       onVisibleIndexPathsChanged={onVisibleIndexPathsChanged}

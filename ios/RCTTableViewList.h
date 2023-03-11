@@ -14,6 +14,7 @@
 @property (nonatomic, copy) NSArray<NSDictionary *> *menu;
 @property (nonatomic, copy) RCTDirectEventBlock onPressRow;
 @property (nonatomic, copy) RCTDirectEventBlock onDeleteRow;
+@property (nonatomic, copy) RCTDirectEventBlock onMoveRow;
 @property (nonatomic, copy) RCTDirectEventBlock onMenu;
 @property (nonatomic, copy) RCTDirectEventBlock onVisibleIndexPathsChanged;
 
