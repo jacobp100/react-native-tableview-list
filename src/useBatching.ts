@@ -9,6 +9,7 @@ import {
   isEqual as indexRangeIsEqual,
   overlap as indexRangeOverlap,
   Overlap,
+  clampToLength,
 } from './indexRange';
 import type { IndexPathRow, VisibleIndexPaths } from './types';
 
@@ -119,7 +120,7 @@ export default (props: Props): IndexRange => {
           },
           props
         )
-      : uncheckedBatchedIndexRange;
+      : clampToLength(uncheckedBatchedIndexRange, rowData.length);
   if (!indexRangeIsEqual(uncheckedBatchedIndexRange, batchedIndexRange)) {
     setBatchedIndexRange(batchedIndexRange);
   }

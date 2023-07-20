@@ -1,17 +1,15 @@
 /* global JSX */
 import React from 'react';
-import {
-  Animated,
+import type {
   ColorValue,
   LayoutChangeEvent,
   NativeSyntheticEvent,
-  requireNativeComponent,
   ScrollView,
   StyleProp,
-  StyleSheet,
-  View,
   ViewStyle,
 } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
+import TableViewList from './TableViewList';
 import type {
   IndexPathRow,
   MenuItem,
@@ -21,8 +19,6 @@ import type {
   VisibleIndexPaths,
 } from './types';
 import useBatching from './useBatching';
-
-const TableViewList = requireNativeComponent<any>('RCTTableViewList');
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +31,6 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
   } as ViewStyle,
-  listEmptyContainer: {},
 });
 
 type MenuItemWithoutCallbacks<Row> = Omit<MenuItem<Row>, 'onPress'> & {
@@ -63,8 +58,7 @@ type SectionData<Row> = {
   moveRows?: 'none' | 'within-section';
 };
 
-export type { Section, RowEvent, MoveRowEvent };
-export type { MenuItem };
+export type { MenuItem, MoveRowEvent, RowEvent, Section };
 
 type RowBasicEventData = {
   sectionIndex: number;
@@ -114,6 +108,15 @@ const combineKeys = (
   section: number,
   rowKey: string
 ) => `${sectionKey ?? String(section)}:${rowKey}`;
+
+const dependenciesEqual = (a: any[], b: any[]) => {
+  for (let i = 0; i < a.length; i += 1) {
+    if (!Object.is(a[i], b[i])) {
+      return false;
+    }
+  }
+  return true;
+};
 
 const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
   const {
@@ -294,11 +297,9 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
   const childrenBatched = React.useMemo(() => {
     const renderCache = renderCacheRef.current;
     const dependencies: any[] = [sections, renderItem, cellStyle];
-    const cache =
+    const previousCache =
       renderCache != null &&
-      renderCache.dependencies.every((prev, i) =>
-        Object.is(prev, dependencies[i])
-      )
+      dependenciesEqual(renderCache.dependencies, dependencies)
         ? renderCache.cache
         : undefined;
     const nextCache = new Map<string, JSX.Element>();
@@ -312,7 +313,7 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
       const index = start + i;
       const { section, row, key, item } = rowData[index];
 
-      const value = cache?.get(key) ?? (
+      const value = previousCache?.get(key) ?? (
         <View key={key} nativeID={key} style={cellStyle}>
           {renderItem({ item, index: row, section: sections[section] })}
         </View>
@@ -344,10 +345,7 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
       {sections.length > 0 ? (
         childrenBatched
       ) : ListEmptyComponent != null ? (
-        <View
-          nativeID="TableViewListEmptyComponent"
-          style={styles.listEmptyContainer}
-        >
+        <View nativeID="TableViewListEmptyComponent">
           <ListEmptyComponent />
         </View>
       ) : null}
