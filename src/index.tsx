@@ -353,9 +353,14 @@ const Component = <Row,>(props: Props<Row>, ref: any, NativeComponent: any) => {
   );
 };
 
-export default React.forwardRef(<Row,>(props: Props<Row>, ref: any) =>
-  Component(props, ref, TableViewList)
+export const BaseComponent = React.forwardRef(
+  <Row,>(props: Props<Row>, ref: any) => Component(props, ref, TableViewList)
 ) as <Row>(props: Props<Row>) => JSX.Element;
+
+// @ts-ignore
+BaseComponent.displayName = 'TableViewList';
+
+export default BaseComponent;
 
 const AnimatedTableViewList = Animated.createAnimatedComponent(
   TableViewList
@@ -365,3 +370,6 @@ export const AnimatedComponent = React.forwardRef(
   <Row,>(props: Props<Row>, ref: any): JSX.Element =>
     Component(props, ref, AnimatedTableViewList)
 ) as <Row>(props: Props<Row>) => JSX.Element;
+
+// @ts-ignore
+AnimatedTableViewList.displayName = 'AnimatedTableViewList';
